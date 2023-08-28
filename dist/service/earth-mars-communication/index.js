@@ -30,9 +30,26 @@ const charMap = {
     z: "9999",
     " ": " ",
     0: "0",
-    ".": "#",
-    ",": "*",
-    ":": "+",
+    "#": "#",
+    "*": "*",
+    "+": "+",
+    ".": ".",
+    ",": ",",
+    ":": ":",
+};
+const keypad = {
+    '1': '',
+    '2': 'abc',
+    '3': 'def',
+    '4': 'ghi',
+    '5': 'jkl',
+    '6': 'mno',
+    '7': 'pqrs',
+    '8': 'tuv',
+    '9': 'wxyz',
+    '*': '',
+    '0': ' ',
+    '#': 'uppercase'
 };
 const reverseCharMap = {};
 for (const key in charMap) {
@@ -49,7 +66,7 @@ const translateMessage = (message, sender, receiver) => {
             .join("");
     }
     else if (isMarsToEarth) {
-        // console.log("ENTERED ELSE");
+        console.log("ENTERED ELSE");
         // const numericWords = message.split(" ");
         // console.log("NUMERIC WORDS :", numericWords);
         // return numericWords
@@ -66,22 +83,59 @@ const translateMessage = (message, sender, receiver) => {
         //       .join("")
         //   )
         //   .join(" ");
-        let translatedMessage = "";
-        let currentNumeric = "";
-        for (const char of message) {
-            if (char === " " || char === ".") {
-                const translatedChar = reverseCharMap[currentNumeric] || currentNumeric;
-                translatedMessage += translatedChar;
-                if (char === " ") {
-                    translatedMessage += " ";
+        let translation = '';
+        let currentChar = '';
+        let currentDigit = '';
+        let isUppercase = false;
+        for (let i = 0; i < message.length; i++) {
+            const char = message[i];
+            if (char === '#') {
+                // Handle uppercase by toggling the flag.
+                isUppercase = !isUppercase;
+            }
+            else if (char === '.') {
+                // Treat the dot as a delimiter and add the current character to the translation.
+                if (currentDigit !== '') {
+                    if (!isUppercase) {
+                        // If not in uppercase mode, process the digit.
+                        const letters = keypad[currentDigit];
+                        if (letters) {
+                            const index = currentChar.length % letters.length;
+                            currentChar += letters[index];
+                        }
+                    }
+                    else {
+                        // If in uppercase mode, convert the digit to uppercase.
+                        currentChar += currentDigit[currentDigit.length - 1].toUpperCase();
+                    }
                 }
-                currentNumeric = "";
+                currentDigit = ''; // Reset the currentDigit.
             }
             else {
-                currentNumeric += char;
+                // Append the digit to the currentDigit.
+                currentDigit += char;
             }
         }
-        return translatedMessage;
+        // Append any remaining characters.
+        if (currentDigit !== '') {
+            if (!isUppercase) {
+                // If not in uppercase mode, process the digit.
+                const letters = keypad[currentDigit];
+                if (letters) {
+                    const index = currentChar.length % letters.length;
+                    currentChar += letters[index];
+                }
+            }
+            else {
+                // If in uppercase mode, convert the digit to uppercase.
+                currentChar += currentDigit[currentDigit.length - 1].toUpperCase();
+            }
+        }
+        // Append any remaining characters.
+        if (currentChar !== '') {
+            translation += currentChar;
+        }
+        return translation;
     }
     return message; // Return the original message if sender and receiver don't match conditions
 };
