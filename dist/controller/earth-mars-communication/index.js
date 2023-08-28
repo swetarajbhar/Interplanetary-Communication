@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.sendMessage = void 0;
-const index_1 = require("../../service/index");
+const index_1 = require("../../service/earth-mars-communication/index");
 const moment_1 = __importDefault(require("moment"));
 const sendMessage = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { message, sender, receiver, } = req.body;
@@ -22,9 +22,11 @@ const sendMessage = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     const endTime = (0, moment_1.default)();
     const processingTime = (moment_1.default.duration(endTime.diff(startTime))).asMilliseconds();
     console.log(`Processing Time : ${processingTime} milliseconds`);
-    res.status(200).json({
-        message: `Received message: ${message}`,
-        translatedMessage,
-    });
+    const response = {
+        message: message,
+        translatedMessage
+    };
+    const modifiedResponse = res.modifyResponse(response);
+    res.status(200).json(modifiedResponse);
 });
 exports.sendMessage = sendMessage;

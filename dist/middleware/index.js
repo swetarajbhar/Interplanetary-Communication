@@ -1,11 +1,27 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const LoggerMiddleware = (req, res, next) => {
-    const sender = req.header('x-sender');
-    const receiver = req.header('x-receiver');
+exports.responseInterceptor = exports.loggerMiddleware = void 0;
+const loggerMiddleware = (req, res, next) => {
+    const sender = req.header("x-sender");
+    const receiver = req.header("x-receiver");
+    console.log(`Sender: ${sender}, Receiver: ${receiver}`);
     req.body.sender = sender;
     req.body.receiver = receiver;
-    console.log(`Sender: ${sender}, Receiver: ${receiver}`);
     next();
 };
-exports.default = LoggerMiddleware;
+exports.loggerMiddleware = loggerMiddleware;
+const responseInterceptor = (req, res, next) => {
+    const sender = req.header("x-sender");
+    const receiver = req.header("x-receiver");
+    const modifyResponse = (originalResponse) => {
+        const responseKey = sender === "earth" ? "Response from Mars" : "Response from Earth";
+        const modifiedResponse = {
+            [responseKey]: originalResponse.message,
+            "Nokia Translation": originalResponse.translatedMessage,
+        };
+        return modifiedResponse;
+    };
+    res.modifyResponse = modifyResponse;
+    next();
+};
+exports.responseInterceptor = responseInterceptor;

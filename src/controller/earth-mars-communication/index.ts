@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { translateMessage } from "../../service/index";
+import { translateMessage } from "../../service/earth-mars-communication/index";
 import moment from 'moment';
 
 export const sendMessage = async (
@@ -21,8 +21,12 @@ export const sendMessage = async (
 
   console.log(`Processing Time : ${processingTime} milliseconds`);
 
-  res.status(200).json({
-    message: `Received message: ${message}`,
-    translatedMessage,
-  });
+  const response = {
+    message: message,
+    translatedMessage
+  };
+
+  const modifiedResponse = res.modifyResponse(response);
+
+  res.status(200).json(modifiedResponse);
 };
